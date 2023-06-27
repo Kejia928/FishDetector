@@ -1,0 +1,3 @@
+[submodule "global-detection-dataset"]
+	path = global-detection-dataset
+	url = https://github.com/Kejia928/global-detection-dataset.git
