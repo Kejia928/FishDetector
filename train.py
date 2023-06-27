@@ -3,6 +3,8 @@ from __future__ import print_function
 
 from CustomDataset import CustomDataset
 from torch.utils.data import DataLoader
+from torchvision.datasets import ImageFolder
+from torchvision.transforms import transforms
 from model import train_model, initialize_model
 import torch
 import torch.nn as nn
@@ -13,8 +15,9 @@ import matplotlib.pyplot as plt
 print("PyTorch Version: ", torch.__version__)
 print("Torchvision Version: ", torchvision.__version__)
 
-# Models to choose from [resnet18, resnet50]
-model_name = "resnet50_Dropout"
+# Models to choose from [resnet, alexnet, vgg, squeezenet, densenet, inception]
+model_name = "resnet18"
+print("model: ", model_name)
 
 # Number of classes in the dataset
 num_classes = 2
@@ -23,35 +26,44 @@ num_classes = 2
 batch_size = 16
 
 # Number of epochs to train for
-num_epochs = 500
+num_epochs = 1
 
 # Flag for feature extracting. When False, we finetune the whole model, when True we only update the reshaped layer params
 feature_extract = False
 
+# L2
+weight_decay = 0.0001
+print("weight decay: ", weight_decay)
+
 # Initialize the model for this run
 print("Initialize model .....")
-model_ft, input_size = initialize_model(model_name, num_classes, feature_extract, use_pretrained=True)
+model_ft = initialize_model(model_name=model_name, num_classes=num_classes, feature_extract=feature_extract, use_pretrained=True)
 print("Finish Iinitialize model .....")
 
 # Print the model we just instantiated
 # print(model_ft)
 
-# Create training and validation dataloaders
-train_dataset = CustomDataset('resnet-dataset/train')
-test_dataset = CustomDataset('resnet-dataset/test')
-train_dataset.initDataset()
-test_dataset.initDataset()
-train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
+# Create training and validation datasets
 
-# images = []
-# labels = []
-# for image, label in train_loader:
-#     images.append(image)
-#     labels.append(label)
-#
-# print(images[0].shape)
-# print(labels[0].shape)
+# Create training and validation dataloaders
+# train_dataset = CustomDataset('resnet-dataset/train')
+# test_dataset = CustomDataset('resnet-dataset/test')
+# train_dataset.initDataset()
+# test_dataset.initDataset()
+# train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+# test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
+transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Resize((640, 640))
+])
+train_set = ImageFolder(root='global-detection-dataset/train', transform=transform)
+test_set = ImageFolder(root='global-detection-dataset/test', transform=transform)
+train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
+test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=True)
+class_names = train_set.classes
+class_idx = train_set.class_to_idx
+print(class_names)
+print(class_idx)
 
 dataloaders_dict = {
     'train': train_loader,
@@ -80,7 +92,7 @@ else:
             print("\t", name)
 
 # Observe that all parameters are being optimized
-optimizer_ft = optim.SGD(params_to_update, lr=0.0001, momentum=0.9, weight_decay=1e-4)
+optimizer_ft = optim.SGD(params_to_update, lr=0.0001, momentum=0.9, weight_decay=weight_decay)
 
 # Set up the loss fxn
 criterion = nn.CrossEntropyLoss()
