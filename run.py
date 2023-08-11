@@ -8,10 +8,19 @@ from torchvision import models
 from model import initialize_model
 from torchvision.transforms import transforms
 from PIL import Image
+import argparse
 from torch.utils.data import DataLoader
 from CustomDataset import CustomDataset
 
-model = initialize_model("resnet50_Dropout", 2, False, False)
+parser = argparse.ArgumentParser(description='YOLO Detector')
+parser.add_argument('--video', type=str, help='Path to the video file')
+parser.add_argument('--model', type=str, help='Path to the YOLO model file')
+args = parser.parse_args()
+
+video_file = args.video if args.video else "video/SP_N5_20170808_2_4.mp4"
+model_file = args.model if args.model else "model/yolov5s_best.pt"
+
+model = initialize_model("resnet18_Dropout", 2, False, False)
 state_dict = torch.load('../model/resnet/resnet50_exp8.pt', map_location='cpu')
 
 # image = "../binary_clf_dataset/binary_clf_dataset_test/hasFish/000046__20170929_F_5_3_png.rf.9ef893b0cb042bd1da73738dd173e09f.jpg"
