@@ -1,6 +1,5 @@
 import copy
 import os.path
-import re
 import time
 import torch
 from matplotlib import pyplot as plt
@@ -8,6 +7,7 @@ from torchvision import models
 import torch.nn as nn
 from torchvision.models import ResNet18_Weights, ResNet50_Weights
 import tqdm
+
 
 def train_model(model, dataloaders, criterion, optimizer, num_epochs=25, is_inception=False):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -132,6 +132,7 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25, is_ince
     plt.savefig(path + '/loss.png')
 
     return model, val_acc_history
+
 
 def set_parameter_requires_grad(model, feature_extracting):
     if feature_extracting:
